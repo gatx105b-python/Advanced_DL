@@ -11,20 +11,8 @@ from models import DEVICE
 
 
 def pick_ckpts(pairs, surge_th: float = 0.03):
-    """Select checkpoints before, during and after accuracy surge and the best."""
-    pairs.sort(key=lambda x: x[0])
-    steps, accs = zip(*pairs)
-    diffs = np.diff(accs)
-    k = int(np.argmax(diffs))
-    pre = steps[max(k - 1, 0)]
-    during = steps[k]
-    post = during
-    for j in range(k + 1, len(diffs)):
-        if diffs[j] < surge_th:
-            post = steps[j + 1]
-            break
-    best = steps[int(np.argmax(accs))]
-    return sorted({pre, during, post, best})
+    """Return fixed checkpoint steps."""
+    return [20000, 30000, 50000]
 
 
 def pick_ckpts_phaseA(pairs, th: float = 0.03):
