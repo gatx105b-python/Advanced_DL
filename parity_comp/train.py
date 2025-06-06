@@ -27,13 +27,10 @@ from models import DEVICE, build_mlp, evaluate
 from training import train
 from utils import (
     pick_ckpts,
-    pick_ckpts_phaseA,
-    rise_region,
     best_mid_worst,
     plot_curve,
     corr_curve,
     move_keep,
-    nearest_logged_step,
 )
 
 # Main ------------------------------------------------------------------------
@@ -67,7 +64,7 @@ def main(cfg):
                  eval_steps=cfg.eval, save_steps=cfg.save,
                  max_steps=cfg.phase_steps)
     pairsA=[(h["step"],h["acc"]) for h in logA]
-    selA = pick_ckpts_phaseA(pairsA)
+    selA = pick_ckpts(pairsA)
     move_keep(out, selA, "PA", parity_dir/"phaseA")
     acc_bigT = evaluate(bigT, ev_global)
     plot_curve(
@@ -107,12 +104,10 @@ def main(cfg):
                      eval_steps=cfg.eval, save_steps=cfg.save,
                      max_steps=cfg.phase_steps)
         pairsB=[(h["step"],h["acc"]) for h in logB]
-        bestB,midB,_=best_mid_worst(pairsB)
-        s_rs, e_rs, midRise = rise_region(pairsB, Δ=0.005)
-        if midRise:
-            midRise = nearest_logged_step(midRise, pairsB)
-        keepB = [bestB[0], midB[0], midRise] if midRise else [bestB[0], midB[0]]
-        if bestB[1] < 0.6: keepB=[]    # skip set
+        bestB,_,_ = best_mid_worst(pairsB)
+        keepB = pick_ckpts(pairsB)
+        if bestB[1] < 0.6:
+            keepB = []    # skip set
         move_keep(out, keepB, tagB, parity_dir/f"phaseB_set{set_idx}")
         plot_curve(
             pairsB,
@@ -149,11 +144,8 @@ def main(cfg):
                          eval_steps=cfg.eval, save_steps=cfg.save,
                          max_steps=cfg.phase_steps)
             pairsC=[(h["step"],h["acc"]) for h in logC]
-            bestC,midC,_=best_mid_worst(pairsC)
-            sC, eC, midRiseC = rise_region(pairsC, Δ=0.005)
-            if midRiseC:
-                midRiseC = nearest_logged_step(midRiseC, pairsC)
-            keepC = [bestC[0], midRiseC, midC[0]] if midRiseC else [bestC[0], midC[0]]
+            bestC,_,_ = best_mid_worst(pairsC)
+            keepC = pick_ckpts(pairsC)
             move_keep(out, keepC, tagC, parity_dir/f"phaseC_set{set_idx}_{sub_idx}")
             plot_curve(
                 pairsC,

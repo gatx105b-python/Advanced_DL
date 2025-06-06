@@ -11,20 +11,8 @@ from models import DEVICE
 
 
 def pick_ckpts(pairs, surge_th: float = 0.03):
-    """Select checkpoints before, during and after accuracy surge and the best."""
-    pairs.sort(key=lambda x: x[0])
-    steps, accs = zip(*pairs)
-    diffs = np.diff(accs)
-    k = int(np.argmax(diffs))
-    pre = steps[max(k - 1, 0)]
-    during = steps[k]
-    post = during
-    for j in range(k + 1, len(diffs)):
-        if diffs[j] < surge_th:
-            post = steps[j + 1]
-            break
-    best = steps[int(np.argmax(accs))]
-    return sorted({pre, during, post, best})
+    """Return the fixed checkpoint steps [20000, 30000, 50000]."""
+    return [20000, 30000, 50000]
 
 
 def pick_ckpts_phaseA(pairs, th: float = 0.03):
@@ -95,7 +83,11 @@ def corr_curve(ckpt_pattern: str, model_fn, dim, k, lab, out_path, loader, out_j
     plt.tight_layout(); plt.savefig(out_path, dpi=250); plt.close()
     if out_json:
         Path(out_json).parent.mkdir(parents=True, exist_ok=True)
-        json.dump({"step": xs, "corr": ys}, open(out_json, "w"), indent=2)
+        json.dump(
+            {"step": [int(s) for s in xs], "corr": [float(c) for c in ys]},
+            open(out_json, "w"),
+            indent=2,
+        )
 
 
 def move_keep(src_root: Path, keep_steps: List[int], tag: str, dst_root: Path):
