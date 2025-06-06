@@ -133,8 +133,6 @@ def main(args):
         rest_corr.append(corr[k:].mean())
         steps.append(step)
         # accuracy(선택용)
-        acc = (torch.softmax(mdl(next(iter(loader))[0].to(DEVICE)),dim=-1).argmax(-1)==
-               next(iter(loader))[1].to(DEVICE)).float().mean().item()
         acc = evaluate(mdl)
         acc_log.append((step, acc))
 

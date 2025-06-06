@@ -11,7 +11,6 @@ from models import DEVICE
 
 
 def pick_ckpts(pairs, surge_th: float = 0.03):
-    """Return fixed checkpoint steps."""
     return [20000, 30000, 50000]
 
 
@@ -83,7 +82,11 @@ def corr_curve(ckpt_pattern: str, model_fn, dim, k, lab, out_path, loader, out_j
     plt.tight_layout(); plt.savefig(out_path, dpi=250); plt.close()
     if out_json:
         Path(out_json).parent.mkdir(parents=True, exist_ok=True)
-        json.dump({"step": xs, "corr": ys}, open(out_json, "w"), indent=2)
+        json.dump(
+            {"step": [int(s) for s in xs], "corr": [float(c) for c in ys]},
+            open(out_json, "w"),
+            indent=2,
+        )
 
 
 def move_keep(src_root: Path, keep_steps: List[int], tag: str, dst_root: Path):
