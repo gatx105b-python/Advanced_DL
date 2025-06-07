@@ -11,7 +11,7 @@ from models import DEVICE
 
 
 def pick_ckpts(pairs, surge_th: float = 0.03):
-    return [20000, 30000, 50000]
+    return [200000, 300000, 500000]
 
 
 def pick_ckpts_phaseA(pairs, th: float = 0.03):
